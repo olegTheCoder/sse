@@ -1,18 +1,21 @@
 const express = require('express');
-const cors = require('cors');
 const app = express();
 const PORT = 3000;
-
-app.use(cors());
 
 app.get('/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  
+  let id = 0;
 
   const sendEvent = (data) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    res.write(`data: ${JSON.stringify(data)}\n`);
+    res.write(`id: ${++id}\n`);
+    res.write("\n");
   };
+
 
   const intervalId = setInterval(() => {
     const message = {
@@ -25,6 +28,7 @@ app.get('/events', (req, res) => {
   req.on('close', () => {
     clearInterval(intervalId);
     res.end();
+    console.log('Close connection');
   });
 });
 
